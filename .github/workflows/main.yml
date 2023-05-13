@@ -313,7 +313,7 @@ jobs:
           path: Public-Releases
       - name: delete old tag
         if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always()}}
-        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        uses: dev-drprasad/delete-tag-and-release@v1.0
         with:
           delete_release: true # default: false
           tag_name: ${{ github.event.repository.name }}-latest # tag name to delete
