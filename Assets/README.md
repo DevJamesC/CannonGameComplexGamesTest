@@ -1,0 +1,2 @@
+While I have written generic pooling systems before, I used the pooling system found at https://liamederzeel.com/a-generic-object-pool-for-unity3d/ for this project.
+However, the lazy pooling script was developed during the duration of this project.
