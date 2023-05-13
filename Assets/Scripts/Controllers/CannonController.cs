@@ -13,6 +13,9 @@ namespace IWantToWorkAtComplexGames
         [SerializeField] private Transform rotationalBody;
         [SerializeField] private float roatationSpeed;
         [SerializeField] private Weapon weaponPrefab;
+        [SerializeField] private AudioSource horizontalAimAudioSource;
+        [SerializeField] private AudioSource verticalAimAudioSource;
+
 
         private Vector3 lookVal;
         private float yRotation;
@@ -26,11 +29,7 @@ namespace IWantToWorkAtComplexGames
         }
         // Start is called before the first frame update
         void Start()
-        {
-            playerInput.actions["Look"].started += OnLook;
-            playerInput.actions["Look"].performed += OnLook;
-            playerInput.actions["Look"].canceled += OnLook;
-            playerInput.actions["Attack"].started += OnAttack;
+        {          
             currentWeapon = Instantiate(weaponPrefab, rotationalBody);
         }
 
@@ -58,12 +57,37 @@ namespace IWantToWorkAtComplexGames
         private void OnLook(InputAction.CallbackContext context)
         {
             lookVal = context.ReadValue<Vector2>();
+            if (lookVal.x != 0)
+                horizontalAimAudioSource.Play();
+            else
+                horizontalAimAudioSource.Stop();
+
+            if (lookVal.y != 0)
+                verticalAimAudioSource.Play();
+            else
+                verticalAimAudioSource.Stop();
         }
 
         //Gets invoked by Player Input Component via messaging to pass in new input
         private void OnAttack(InputAction.CallbackContext context)
         {
             currentWeapon.Use();
+        }
+
+        private void OnEnable()
+        {
+            playerInput.actions["Look"].started += OnLook;
+            playerInput.actions["Look"].performed += OnLook;
+            playerInput.actions["Look"].canceled += OnLook;
+            playerInput.actions["Attack"].started += OnAttack;
+        }
+
+        private void OnDisable()
+        {
+            playerInput.actions["Look"].started -= OnLook;
+            playerInput.actions["Look"].performed -= OnLook;
+            playerInput.actions["Look"].canceled -= OnLook;
+            playerInput.actions["Attack"].started -= OnAttack;
         }
 
 

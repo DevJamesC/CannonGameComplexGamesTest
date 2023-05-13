@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,13 +11,25 @@ namespace IWantToWorkAtComplexGames
     /// </summary>
     public class CannonballController : ResettableMonoBehaviour, IDamager
     {
+        [SerializeField] private float lifetime;
+        [SerializeField] private GameObject onCollisionParticleSystem;
+        [SerializeField] private AudioClip collisionAudioClip;
+
         public event Action<CannonballController, Collision> OnCollision = delegate { };
 
         private new Rigidbody rigidbody;
+        private float currentLifetime;
+        private CinemachineImpulseSource impulseSource;
 
         private void Awake()
         {
             rigidbody = GetComponent<Rigidbody>();
+            impulseSource = GetComponent<CinemachineImpulseSource>();
+        }
+
+        private void Start()
+        {
+            currentLifetime = lifetime;
         }
 
         public void Launch(Vector3 velocity)
@@ -24,11 +37,20 @@ namespace IWantToWorkAtComplexGames
             rigidbody.AddForce(velocity, ForceMode.Impulse);
         }
 
+        private void Update()
+        {
+            if (currentLifetime > 0)
+                currentLifetime -= Time.deltaTime;
+            else
+                Reset();
+        }
+
         public override void Reset()
         {
             base.Reset();
             OnCollision = delegate { };
             rigidbody.velocity = Vector3.zero;
+            currentLifetime = lifetime;
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -38,8 +60,10 @@ namespace IWantToWorkAtComplexGames
                 DealDamage(target);
 
             OnCollision.Invoke(this, collision);
+            Instantiate(onCollisionParticleSystem, collision.GetContact(0).point, Quaternion.identity);
+            AudioSource.PlayClipAtPoint(collisionAudioClip, collision.GetContact(0).point, 10);
+            impulseSource.GenerateImpulse(new Vector3(UnityEngine.Random.Range(-.5f, .5f), UnityEngine.Random.Range(-.5f, .5f), 0f));
 
-           
         }
 
         public void DealDamage(IDamageable target)

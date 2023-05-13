@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class UIButtonMethods : MonoBehaviour
 {
+
+    private float gameplayTimescale;
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadSceneAsync(sceneName);
@@ -44,6 +46,17 @@ public class UIButtonMethods : MonoBehaviour
         if (playerObj == null)
             return null;
         return playerObj.GetComponent<PlayerInput>();
+    }
+
+    public void SetPauseTimescale()
+    {
+        gameplayTimescale = Time.timeScale;
+        Time.timeScale = 0;
+    }
+
+    public void SetGameplayTimescale()
+    {
+        Time.timeScale = gameplayTimescale;
     }
 
     public void QuitApplication()

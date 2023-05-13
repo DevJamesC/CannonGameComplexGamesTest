@@ -42,10 +42,36 @@ namespace IWantToWorkAtComplexGames
             return newMember;
         }
 
+        /// <summary>
+        /// Reset this member and remove it from the unavailable list
+        /// </summary>
+        /// <param name="member"></param>
         public void Release(T member)
         {
             member.Reset();
             unavailable.Remove(member);
+        }
+
+        public void RemoveFromPool(T member)
+        {
+            unavailable.Remove(member);
+            members.Remove(member);
+        }
+
+        /// <summary>
+        /// Since pools do not exist in a scene, switching scenes will destroy members while keeping the pool. Ideally, memebers would clean
+        /// themselves on the onDestroy event, but that solution will need to wait for a refactor.
+        /// </summary>
+        public void CleanPool()
+        {
+            List<T> newMembers = new List<T>();
+            for (int i = 0; i < members.Count; i++)
+            {
+                if (!members[i].Equals(null))
+                    newMembers.Add(members[i]);
+            }
+            members = newMembers;
+
         }
 
         T Create()
@@ -54,6 +80,8 @@ namespace IWantToWorkAtComplexGames
             members.Add(member);
             return member;
         }
+
+
 
         IEnumerator IEnumerable.GetEnumerator()
         {

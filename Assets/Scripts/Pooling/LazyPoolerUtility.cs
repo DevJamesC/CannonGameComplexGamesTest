@@ -14,6 +14,7 @@ namespace IWantToWorkAtComplexGames
                 activePools = new Dictionary<GameObject, object>();
 
             Pool<T> pool = GetPool<T>(prefab);
+            pool.CleanPool();
 
             return pool.Allocate();
         }
@@ -24,6 +25,7 @@ namespace IWantToWorkAtComplexGames
                 activePools = new Dictionary<GameObject, object>();
 
             Pool<T> pool = GetPool<T>(prefab);
+            pool.CleanPool();
 
             return pool;
         }
