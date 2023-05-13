@@ -1,0 +1,29 @@
+name: Acquire activation file
+on:
+  workflow_dispatch: {}
+jobs:
+  activation:
+    name: Request manual activation file 🔑
+    runs-on: ubuntu-latest
+    steps:
+      # Request manual activation file
+      - name: Request manual activation file
+        id: getManualLicenseFile
+        uses: game-ci/unity-request-activation-file@v2
+      # Upload artifact (Unity_v20XX.X.XXXX.alf)
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.getManualLicenseFile.outputs.filePath }}
+          path: ${{ steps.getManualLicenseFile.outputs.filePath }}
+
+          #Run this in github actions... it will output a .alf file as the unity license (so we can run the project in the build server)
+          #1: download the .alf file and unzip it.
+          #2: upload the .afl file to https://license.unity3d.com/manual to register the license and get a .ulf unity license file.
+          #3: Download the .ulf, open it, copy the value, and set it as a secret in github called UNITY_LICENSE
+          #4: Create a UNITY_EMAIL and UNITY_PASSWORD Secret (look in the guide for this... it's skipped over in the video)
+          #5: In the settings, make sure that Settings->Actions->General->Read And Write Permissions are toggled
+
+          #For more details, follow this guide https://game.ci/docs/github/activation
+          #Or this video https://www.youtube.com/watch?v=JjKCy3H0A30&ab_channel=RohanMayya 
+          #The Video is probably better.

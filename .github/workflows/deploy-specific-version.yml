@@ -1,0 +1,316 @@
+name: Redeploy Specific Version
+
+on: 
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: 'Version number: Include only numbers'
+        type: string
+        required: true
+      buildTargetStandaloneOSX:
+        type: boolean
+        defualt: false
+        description: 'Deploy for StandaloneOSX'
+      buildTargetStandaloneWindows:
+        type: boolean
+        defualt: false
+        description: 'Deploy for StandaloneWindows'
+      buildTargetStandaloneWindows64:
+        type: boolean
+        defualt: false
+        description: 'Deploy for StandaloneWindows64'
+      buildTargetStandaloneLinux64:
+        type: boolean
+        defualt: false
+        description: 'Deploy for StandaloneLinux64'
+      buildTargetiOS:
+        type: boolean
+        defualt: false
+        description: 'Deploy for iOS'
+      buildTargetAndroid:
+        type: boolean
+        defualt: false
+        description: 'Deploy for Android'
+      buildTargetWebGL:
+        type: boolean
+        defualt: false
+        description: 'Deploy for WebGL'
+
+permissions: write-all
+
+jobs:
+  copy-file-to-publicStorage:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: install fetch
+        run: |
+          brew install fetch
+      - name: Download StandaloneOSX Release zip
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-StandaloneOSX" --release-asset="${{ github.event.repository.name }}_StandaloneOSXv${{ github.event.inputs.releaseVersion }}.zip" .
+      - name: Download StandaloneWindows Release zip
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-StandaloneWindows" --release-asset="${{ github.event.repository.name }}_StandaloneWindowsv${{ github.event.inputs.releaseVersion }}.zip" .
+      - name: Download StandaloneWindows64 Release zip
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-StandaloneWindows64" --release-asset="${{ github.event.repository.name }}_StandaloneWindows64v${{ github.event.inputs.releaseVersion }}.zip" .      
+      - name: Download StandaloneLinux64 Release zip
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-StandaloneLinux64" --release-asset="${{ github.event.repository.name }}_StandaloneLinux64v${{ github.event.inputs.releaseVersion }}.zip" .      
+      - name: Download iOS Release zip
+        if: ${{ github.event.inputs.buildTargetiOS == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-iOS" --release-asset="${{ github.event.repository.name }}_iOSv${{ github.event.inputs.releaseVersion }}.zip" .
+      - name: Download Android Release zip
+        if: ${{ github.event.inputs.buildTargetAndroid == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-Android" --release-asset="${{ github.event.repository.name }}_Androidv${{ github.event.inputs.releaseVersion }}.zip" .
+      - name: Download WebGL Release zip
+        if: ${{ github.event.inputs.buildTargetWebGL == 'true' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/${{ github.event.repository.name }}" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="v${{ github.event.inputs.releaseVersion }}-WebGL" --release-asset="${{ github.event.repository.name }}_WebGLv${{ github.event.inputs.releaseVersion }}.zip" .
+     
+      - name: Download current latest StandaloneOSX file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'false' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneOSX_latest.zip" .
+      - name: Download current latest StandaloneWindows file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'false' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneWindows_latest.zip" .
+      - name: Download current latest StandaloneWindows64 file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'false' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneWindows64_latest.zip" .
+      - name: Download current latest StandaloneLinux64 file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'false' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneLinux64_latest.zip" .
+      - name: Download current latest iOS file to keep
+        if: ${{ github.event.inputs.buildTargetiOS == 'false' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_iOS_latest.zip" .
+      - name: Download current latest Android file to keep
+        if: ${{ github.event.inputs.buildTargetAndroid == 'false' }}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_Android_latest.zip" .
+      - name: Download current latest WebGL file to keep
+        if: ${{ github.event.inputs.buildTargetWebGL == 'false' }} && always()
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_WebGL_latest.zip" .
+      - name: Checkout Remote
+        if: always()
+        uses: actions/checkout@v3
+        with:
+          repository: devjamesc/Public-Releases
+          persist-credentials: false
+          fetch-depth: 0
+          path: Public-Releases
+      - name: delete old tag
+        if: always()
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true # default: false
+          tag_name: ${{ github.event.repository.name }}-latest # tag name to delete
+          repo: devjamesc/Public-Releases # target repo (optional). defaults to repo running this action
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+      - name: Create Release
+        if: always()
+        id: create-new-release-remote
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ github.event.repository.name }}-latest
+          commitish: main
+          release_name: Release ${{ github.event.repository.name }}-latest
+          repo: Public-Releases
+          owner: devJamesC
+          draft: false
+          prerelease: false
+
+      - name: Upload previous StandaloneOSX for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'false' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneOSX_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneOSX_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace StandaloneOSX Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'true' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneOSXv${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneOSX_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous StandaloneWindows for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'false' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace StandaloneWindows Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'true' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindowsv${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous StandaloneWindows64 for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'false' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows64_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace StandaloneWindows64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'true' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows64v${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous StandaloneLinux64 for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'false' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneLinux64_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneLinux64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace StandaloneLinux64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'true' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneLinux64v${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneLinux64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous iOS for non-replace
+        if: ${{ github.event.inputs.buildTargetiOS == 'false' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_iOS_latest.zip
+          asset_name: ${{ github.event.repository.name }}_iOS_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace Latest iOS Artifact
+        if: ${{ github.event.inputs.buildTargetiOS == 'true' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_iOSv${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_iOS_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous Android for non-replace
+        if: ${{ github.event.inputs.buildTargetAndroid == 'false'  && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_Android_latest.zip
+          asset_name: ${{ github.event.repository.name }}_Android_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace Latest Android Artifact
+        if: ${{ github.event.inputs.buildTargetAndroid == 'true' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_Androidv${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_Android_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous WebGL for non-replace
+        if: ${{ github.event.inputs.buildTargetWebGL == 'false' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_WebGL_latest.zip
+          asset_name: ${{ github.event.repository.name }}_WebGL_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Replace WebGL Artifact
+        if: ${{ github.event.inputs.buildTargetWebGL == 'true' && always() }} 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_WebGLv${{ github.event.inputs.releaseVersion }}.zip
+          asset_name: ${{ github.event.repository.name }}_WebGL_latest.zip
+          asset_content_type: application/zip
+
+      - name: Create publish directory
+        if: always()
+        run: |
+          cd Public-Releases
+          ls -a
+          git config --local user.email jkc36@pitt.edu
+          git config --local user.name devjamesc
+          git lfs install
+      - name: Commit and Push
+        if: always()
+        run: |
+          cd Public-Releases
+          rm -f README.md
+          touch README.md
+          echo 'reversion release: ${{ github.event.repository.name }}v${{ github.event.inputs.releaseVersion }} : Run number ${{ github.run_number }}' >> README.md
+          echo 'Adding git commit'
+          git add .
+          echo 'git status'
+          git status
+          echo 'git lfs status'
+          git lfs ls-files
+          git commit --message 'comitting reversion ${{ github.event.repository.name }}_v${{ github.event.inputs.releaseVersion }}.zip'
+          git remote set-url --push origin https://devjamesc:${{ secrets.API_TOKEN_GITHUB }}@github.com/DevJamesC/Public-Releases.git
+          git push origin main

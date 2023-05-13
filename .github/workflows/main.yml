@@ -1,0 +1,513 @@
+name: Build, Release, and Deploy
+
+on: 
+  workflow_dispatch:
+    inputs:
+      workflow:
+        description: 'Workflow type: artifacts will not be cleared after build only'
+        required: true
+        default: 'build, release, and deploy' 
+        type: choice
+        options:
+        - build only
+        - build and release
+        - build, release, and deploy 
+      developmentBuild:
+        description: 'Development Build'
+        required: true
+        default: 'No' 
+        type: choice
+        options:
+        - 'Yes'
+        - 'No'
+      buildTargetStandaloneOSX:
+        type: boolean
+        defualt: false
+        description: 'Build for StandaloneOSX'
+        required: true
+      buildTargetStandaloneWindows:
+        type: boolean
+        defualt: false
+        description: 'Build for StandaloneWindows'
+        required: true
+      buildTargetStandaloneWindows64:
+        type: boolean
+        defualt: false
+        description: 'Build for StandaloneWindows64'
+        required: true
+      buildTargetStandaloneLinux64:
+        type: boolean
+        defualt: false
+        description: 'Build for StandaloneLinux64'
+        required: true
+      buildTargetiOS:
+        type: boolean
+        defualt: false
+        description: 'Build for iOS'
+        required: true
+      buildTargetAndroid:
+        type: boolean
+        defualt: false
+        description: 'Build for Android'
+        required: true
+      buildTargetWebGL:
+        type: boolean
+        defualt: false
+        description: 'Build for WebGL'
+        required: true
+
+permissions: write-all
+
+jobs:
+  buildForAllSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+          - StandaloneWindows # Build a Windows standalone.
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+          - iOS # Build an iOS player.
+          - Android # Build an Android .apk standalone app.
+          - WebGL # WebGL.
+    steps:
+      - name: checkout
+        if: ${{ (matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true')}}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: cache
+        if: ${{ (matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true')}}
+        uses: actions/cache@v2
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+      - name: build unity development project
+        if: ${{ github.event.inputs.developmentBuild=='Yes' && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          versioning: Semantic
+          buildName: ${{ github.event.repository.name }}
+          customParameters: -Development 
+      - name: build unity production project
+        if: ${{ github.event.inputs.developmentBuild=='No' && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+          versioning: Semantic
+          buildName: ${{ github.event.repository.name }}
+      - name: upload build artifact
+        if: ${{ (matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true')}}
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ github.event.repository.name }}_${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+      
+  release-project:
+    name: release for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    needs: buildForAllSupportedPlatforms
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+          - StandaloneWindows # Build a Windows standalone.
+          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+          - iOS # Build an iOS player.
+          - Android # Build an Android .apk standalone app.
+          - WebGL # WebGL.
+    steps:
+      - name: Download Artifact
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_${{ matrix.targetPlatform }}
+      - name: Archive Artifact Content
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_${{ matrix.targetPlatform }}.zip
+      - name: Create Github Versioned Release #This will create a new tag, so old versions are still accessable.
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        id: create-new-release-versioned
+        uses: "marvinpinto/action-automatic-releases@latest" #NOTE: If this step breaks, it may be because the latest commit to marvinpinto/... broke the action. refactor this to use stable version instead of @latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}" # This token is provided by Actions, you do not need to create your own token
+          automatic_release_tag: "v${{ github.run_number }}-${{ matrix.targetPlatform }}"
+          prerelease: false
+          title: "${{ github.event.repository.name }}-${{ matrix.targetPlatform }}-v${{ github.run_number }}"
+      - name: Upload Release Asset Versioned #This attaches the built .zip file to the release with the version in the name
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release-versioned.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_${{ matrix.targetPlatform }}.zip
+          asset_name: ${{ github.event.repository.name }}_${{ matrix.targetPlatform }}v${{ github.run_number }}.zip
+          asset_content_type: application/zip
+      - name: Create Github Latest Release
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        id: create-new-release
+        uses: "marvinpinto/action-automatic-releases@latest" #NOTE: If this step breaks, it may be because the latest commit to marvinpinto/... broke the action. refactor this to use stable version instead of @latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}" # This token is provided by Actions, you do not need to create your own token
+          automatic_release_tag: "latest-${{ matrix.targetPlatform }}"
+          prerelease: false
+          title: "Latest-${{ github.event.repository.name }}-${{ matrix.targetPlatform }}"
+      - name: Upload Release Asset Versioned #This attaches the built .zip file to the release with the version in the name
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_${{ matrix.targetPlatform }}.zip
+          asset_name: ${{ github.event.repository.name }}_${{ matrix.targetPlatform }}v${{ github.run_number }}.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Static #This attaches the built .zip file to the release without the version in the name. This is good for a consitant download URL for sites
+        if: ${{(github.event.inputs.workflow == 'build and release' ||  github.event.inputs.workflow == 'build, release, and deploy') && ((matrix.targetPlatform=='StandaloneOSX' && github.event.inputs.buildTargetStandaloneOSX=='true') || (matrix.targetPlatform=='StandaloneWindows' && github.event.inputs.buildTargetStandaloneWindows=='true') || (matrix.targetPlatform=='StandaloneWindows64' && github.event.inputs.buildTargetStandaloneWindows64=='true') || (matrix.targetPlatform=='StandaloneLinux64' && github.event.inputs.buildTargetStandaloneLinux64=='true') || (matrix.targetPlatform=='iOS' && github.event.inputs.buildTargetiOS=='true') ||(matrix.targetPlatform=='Android' && github.event.inputs.buildTargetAndroid=='true')|| (matrix.targetPlatform=='WebGL' && github.event.inputs.buildTargetWebGL=='true'))}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_${{ matrix.targetPlatform }}.zip
+          asset_name: ${{ github.event.repository.name }}_${{ matrix.targetPlatform }}latest.zip
+          asset_content_type: application/zip
+     
+  copy-file-to-publicStorage:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: buildForAllSupportedPlatforms
+    steps:
+      - name: Download StandaloneOSX Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_StandaloneOSX
+      - name: Download StandaloneWindows Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_StandaloneWindows
+      - name: Download StandaloneWindows64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_StandaloneWindows64
+      - name: Download StandaloneLinux64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_StandaloneLinux64
+      - name: Download iOS Artifact
+        if: ${{ github.event.inputs.buildTargetiOS == 'true' && github.event.inputs.workflow == 'build, release, and deploy'}}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_iOS
+      - name: Download Android Artifact
+        if: ${{ github.event.inputs.buildTargetAndroid == 'true' && github.event.inputs.workflow == 'build, release, and deploy'}}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_Android
+      - name: Download WebGL Artifact
+        if: ${{ github.event.inputs.buildTargetWebGL == 'true' && github.event.inputs.workflow == 'build, release, and deploy'}}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}_WebGL
+      - name: Archive StandaloneOSX Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_StandaloneOSX.zip
+      - name: Archive StandaloneWindows Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_StandaloneWindows.zip
+      - name: Archive StandaloneWindows64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_StandaloneWindows64.zip
+      - name: Archive StandaloneLinux64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'true' && github.event.inputs.workflow == 'build, release, and deploy' }}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_StandaloneLinux64.zip
+      - name: Archive iOS Artifact
+        if: ${{ github.event.inputs.buildTargetiOS == 'true' && github.event.inputs.workflow == 'build, release, and deploy'}}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_iOS.zip
+      - name: Archive Android Artifact
+        if: ${{ github.event.inputs.buildTargetAndroid == 'true' && github.event.inputs.workflow == 'build, release, and deploy'}}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_Android.zip
+      - name: Archive WebGL Artifact
+        if: ${{ github.event.inputs.buildTargetWebGL == 'true' && github.event.inputs.workflow == 'build, release, and deploy'}}
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: ${{ github.event.repository.name }}_$WebGL.zip
+
+      - name: install fetch
+        run: |
+          brew install fetch
+
+      - name: Download current latest StandaloneOSX file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneOSX_latest.zip" .
+      - name: Download current latest StandaloneWindows file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneWindows_latest.zip" .
+      - name: Download current latest StandaloneWindows64 file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneWindows64_latest.zip" .
+      - name: Download current latest StandaloneLinux64 file to keep
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_StandaloneLinux64_latest.zip" .
+      - name: Download current latest iOS file to keep
+        if: ${{ github.event.inputs.buildTargetiOS == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_iOS_latest.zip" .
+      - name: Download current latest Android file to keep
+        if: ${{ github.event.inputs.buildTargetAndroid == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_Android_latest.zip" .
+      - name: Download current latest WebGL file to keep
+        if: ${{ github.event.inputs.buildTargetWebGL == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        run: |
+          echo 'Copying contents to git repo'
+          fetch --repo="https://github.com/DevJamesC/Public-Releases" --github-oauth-token="${{ secrets.API_TOKEN_GITHUB }}" --tag="${{ github.event.repository.name }}-latest" --release-asset="${{ github.event.repository.name }}_WebGL_latest.zip" .
+      - name: Checkout Remote
+        if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        uses: actions/checkout@v3
+        with:
+          repository: devjamesc/Public-Releases
+          persist-credentials: false
+          fetch-depth: 0
+          path: Public-Releases
+      - name: delete old tag
+        if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        uses: dev-drprasad/delete-tag-and-release@v0.2.0
+        with:
+          delete_release: true # default: false
+          tag_name: ${{ github.event.repository.name }}-latest # tag name to delete
+          repo: devjamesc/Public-Releases # target repo (optional). defaults to repo running this action
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+      - name: Create Release
+        if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        id: create-new-release-remote
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          tag_name: ${{ github.event.repository.name }}-latest
+          commitish: main
+          release_name: Release ${{ github.event.repository.name }}-latest
+          repo: Public-Releases
+          owner: devJamesC
+          draft: false
+          prerelease: false
+
+      - name: Upload previous StandaloneOSX for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneOSX_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneOSX_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest StandaloneOSX Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneOSX == 'true' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneOSX.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneOSX_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous StandaloneWindows for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest StandaloneWindows Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows == 'true' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous StandaloneWindows64 for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows64_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest StandaloneWindows64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneWindows64 == 'true' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneWindows64.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneWindows64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous StandaloneLinux64 for non-replace
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_StandaloneLinux64_latest.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneLinux64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest StandaloneLinux64 Artifact
+        if: ${{ github.event.inputs.buildTargetStandaloneLinux64 == 'true' && github.event.inputs.workflow == 'build, release, and deploy'&& always()  }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_StandaloneLinux64.zip
+          asset_name: ${{ github.event.repository.name }}_StandaloneLinux64_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous iOS for non-replace
+        if: ${{ github.event.inputs.buildTargetiOS == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_iOS_latest.zip
+          asset_name: ${{ github.event.repository.name }}_iOS_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest iOS Artifact
+        if: ${{ github.event.inputs.buildTargetiOS == 'true' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_iOS.zip
+          asset_name: ${{ github.event.repository.name }}_iOS_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous Android for non-replace
+        if: ${{ github.event.inputs.buildTargetAndroid == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_Android_latest.zip
+          asset_name: ${{ github.event.repository.name }}_Android_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest Android Artifact
+        if: ${{ github.event.inputs.buildTargetAndroid == 'true' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_Android.zip
+          asset_name: ${{ github.event.repository.name }}_Android_latest.zip
+          asset_content_type: application/zip
+      - name: Upload previous WebGL for non-replace
+        if: ${{ github.event.inputs.buildTargetWebGL == 'false' && github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./${{ github.event.repository.name }}_WebGL_latest.zip
+          asset_name: ${{ github.event.repository.name }}_WebGL_latest.zip
+          asset_content_type: application/zip
+      - name: Upload Release Asset Latest WebGL Artifact
+        if: ${{ github.event.inputs.buildTargetWebGL == 'true' && github.event.inputs.workflow == 'build, release, and deploy' && always()}}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          upload_url: ${{ steps.create-new-release-remote.outputs.upload_url }} # This pulls from the CREATE GITHUB RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./${{ github.event.repository.name }}_WebGL.zip
+          asset_name: ${{ github.event.repository.name }}_WebGL_latest.zip
+          asset_content_type: application/zip
+
+      - name: Create publish directory
+        if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        run: |
+          cd Public-Releases
+          ls -a
+          git config --local user.email jkc36@pitt.edu
+          git config --local user.name devjamesc
+          git lfs install
+      - name: Commit and Push
+        if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+        run: |
+          cd Public-Releases
+          rm -f README.md
+          touch README.md
+          echo 'Most recent release: ${{ github.event.repository.name }}v${{ github.run_number }}' >> README.md
+          echo 'Adding git commit'
+          git add .
+          echo 'git status'
+          git status
+          echo 'git lfs status'
+          git lfs ls-files
+          git commit --message 'comitting ${{ github.event.repository.name }}_v${{ github.run_number }}.zip'
+          git remote set-url --push origin https://devjamesc:${{ secrets.API_TOKEN_GITHUB }}@github.com/DevJamesC/Public-Releases.git
+          git push origin main
+
+  clean-up-artifacts-deploy:
+    needs: [release-project,copy-file-to-publicStorage]
+    if: ${{ github.event.inputs.workflow == 'build, release, and deploy' && always() }}
+    uses: ./.github/workflows/remove-old-artifacts.yml
+
+  clean-up-artifacts-release-only:
+    needs: [release-project]
+    if: ${{ github.event.inputs.workflow == 'build and release' && always() }}
+    uses: ./.github/workflows/remove-old-artifacts.yml
+    
