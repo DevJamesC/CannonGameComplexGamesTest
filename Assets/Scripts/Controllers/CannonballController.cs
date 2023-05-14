@@ -61,7 +61,7 @@ namespace IWantToWorkAtComplexGames
 
             OnCollision.Invoke(this, collision);
             Instantiate(onCollisionParticleSystem, collision.GetContact(0).point, Quaternion.identity);
-            AudioSource.PlayClipAtPoint(collisionAudioClip, collision.GetContact(0).point, 10);
+            AudioSource.PlayClipAtPoint(collisionAudioClip, collision.GetContact(0).point, 50);
             impulseSource.GenerateImpulse(new Vector3(UnityEngine.Random.Range(-.5f, .5f), UnityEngine.Random.Range(-.5f, .5f), 0f));
 
         }
