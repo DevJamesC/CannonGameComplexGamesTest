@@ -222,7 +222,7 @@ MonoBehaviour:
         typeString: 
       - title: Dialogue Text
         value: Greetings, Guardsmen. You have been authorized for training of Modular
-          Weapon Platform number 12,104. I have initialized a virtual simulation.
+          Weapon Platform number 12104. I have initialized a virtual simulation.
         type: 0
         typeString: 
       - title: Sequence

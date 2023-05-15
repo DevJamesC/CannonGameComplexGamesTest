@@ -77,6 +77,9 @@ namespace IWantToWorkAtComplexGames
         /// <param name="context"></param>
         private void OnAttack(InputAction.CallbackContext context)
         {
+            if (currentWeapon == null)
+                currentWeapon = Instantiate(weaponPrefab, rotationalBody);
+
             currentWeapon.Use();
         }
 
