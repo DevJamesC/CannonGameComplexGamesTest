@@ -1,14 +1,17 @@
-using IWantToWorkAtComplexGames;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class ReturnToPoolOnDamage : Health, IDamageable
+namespace IWantToWorkAtComplexGames
 {
-    public override void TakeDamage(float damage)
+    /// <summary>
+    /// This class releases an object back to its pool on damage
+    /// </summary>
+    public class ReturnToPoolOnDamage : Health, IDamageable
     {
-        AudioSource.PlayClipAtPoint(destroyAudioClip, transform.position, 20);
-        InvokeOnDeath();
+        //Invokes on death method when hit. All logic is handled by other scripts via delegation.
+        public override void TakeDamage(float damage)
+        {
+            AudioSource.PlayClipAtPoint(destroyAudioClip, transform.position, 20);
+            InvokeOnDeath();
+        }
     }
 }

@@ -1,38 +1,40 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using PixelCrushers;
 
-public class DialogueSystemInputRegistration : MonoBehaviour
+namespace IWantToWorkAtComplexGames
 {
-    protected static bool isRegistered = false;
-    private bool didIRegister = false;
-    private InputControls controls;
-    void Awake()
+    /// <summary>
+    /// This class registers new Unity Input System actions with the Dialogue System For Unity. This is a key peice to integrate the two solutions
+    /// </summary>
+    public class DialogueSystemInputRegistration : MonoBehaviour
     {
-        controls = new InputControls();
-    }
-    void OnEnable()
-    {
-        if (!isRegistered)
+        protected static bool isRegistered = false;
+        private bool didIRegister = false;
+        private InputControls controls;
+        void Awake()
         {
-            isRegistered = true;
-            didIRegister = true;
-            controls.Enable();
-            //InputDeviceManager.RegisterInputAction("Back", controls.Gameplay.Back);
-            InputDeviceManager.RegisterInputAction("Interact", controls.Gameplay.Interact);
+            controls = new InputControls();
+        }
+        void OnEnable()
+        {
+            if (!isRegistered)
+            {
+                isRegistered = true;
+                didIRegister = true;
+                controls.Enable();
+                InputDeviceManager.RegisterInputAction("Interact", controls.Gameplay.Interact);
+            }
+        }
+        void OnDisable()
+        {
+            if (didIRegister)
+            {
+                isRegistered = false;
+                didIRegister = false;
+                controls.Disable();
+                InputDeviceManager.UnregisterInputAction("Interact");
+            }
+
         }
     }
-    void OnDisable()
-    {
-        if (didIRegister)
-        {
-            isRegistered = false;
-            didIRegister = false;
-            controls.Disable();
-            //InputDeviceManager.UnregisterInputAction("Back");
-            InputDeviceManager.UnregisterInputAction("Interact");
-        }
-
-    }
-
 }

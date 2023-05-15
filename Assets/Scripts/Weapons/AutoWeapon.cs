@@ -1,11 +1,13 @@
 using Cinemachine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace IWantToWorkAtComplexGames
 {
+    /// <summary>
+    /// Auto Weapon extends Weapon class, and has additional functionality for ammo, reload, and cyclical launch points
+    /// </summary>
     public class AutoWeapon : Weapon
     {
         [SerializeField] private List<Transform> launchPoints;
@@ -17,7 +19,7 @@ namespace IWantToWorkAtComplexGames
         [SerializeField] private int maxClip;
         [SerializeField] private float timeToReload;
         [SerializeField] private Slider ammoCounter;
-        
+
 
         private Pool<CannonballController> cannonballPool;
         private CinemachineImpulseSource impulseSource;
@@ -38,6 +40,20 @@ namespace IWantToWorkAtComplexGames
 
         private void Update()
         {
+
+            if (!HandleReload())
+                return;
+
+            HandleFire();
+
+        }
+
+        /// <summary>
+        /// Handle reloading. If reloading, will return false. If not reloading, will return true
+        /// </summary>
+        /// <returns></returns>
+        private bool HandleReload()
+        {
             if (timeToFinishReload > 0)
             {
                 timeToFinishReload -= Time.deltaTime;
@@ -47,9 +63,16 @@ namespace IWantToWorkAtComplexGames
                     currentClip = maxClip;
                     ammoCounter.value = (float)currentClip / maxClip;
                 }
-                return;
+                return false;
             }
+            return true;
+        }
 
+        /// <summary>
+        /// Handles decrimenting the timeToNextFire count, and firing when it reaches 0
+        /// </summary>
+        private void HandleFire()
+        {
             if (timeToNextFire > 0)
                 timeToNextFire -= Time.deltaTime;
             else if (weaponInUse)
@@ -57,7 +80,6 @@ namespace IWantToWorkAtComplexGames
                 timeToNextFire = refireRate;
                 Fire();
             }
-
         }
 
         public override void Use()
@@ -70,6 +92,9 @@ namespace IWantToWorkAtComplexGames
             weaponInUse = false;
         }
 
+        /// <summary>
+        /// Launches a cannonball
+        /// </summary>
         private void Fire()
         {
             launchPoint = launchPoints[currentLaunchPointIndex];
@@ -95,6 +120,11 @@ namespace IWantToWorkAtComplexGames
             ammoCounter.value = (float)currentClip / maxClip;
         }
 
+        /// <summary>
+        /// Releases cannonball back into the pool on collision
+        /// </summary>
+        /// <param name="cannonball"></param>
+        /// <param name="collision"></param>
         private void NewCannonball_OnCollision(CannonballController cannonball, Collision collision)
         {
             cannonball.OnCollision -= NewCannonball_OnCollision;

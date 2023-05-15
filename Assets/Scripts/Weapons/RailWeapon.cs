@@ -1,11 +1,12 @@
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace IWantToWorkAtComplexGames
 {
+    /// <summary>
+    /// Rail Weapon has a charge and release fire control. 
+    /// </summary>
     public class RailWeapon : Weapon
     {
         public float CurrentForcePercent
@@ -42,6 +43,14 @@ namespace IWantToWorkAtComplexGames
 
         private void Update()
         {
+            IncrimentLaunchForce();
+        }
+
+        /// <summary>
+        /// Incriments the launch force, up to the maximum force, depending on how long the weapon is used
+        /// </summary>
+        private void IncrimentLaunchForce()
+        {
             if (!weaponInUse)
                 return;
 
@@ -50,11 +59,14 @@ namespace IWantToWorkAtComplexGames
                 launchForce += (maxLaunchForce / timeToMaxForce) * Time.deltaTime;
                 powerSlider.value = CurrentForcePercent;
             }
-            
+
             if (CurrentForcePercent >= 1 && !fullChargeLoopSource.isPlaying)
                 fullChargeLoopSource.Play();
         }
 
+        /// <summary>
+        /// Start charging the weapon
+        /// </summary>
         public override void Use()
         {
             weaponInUse = true;
@@ -62,6 +74,9 @@ namespace IWantToWorkAtComplexGames
             chargingAudioSource.Play();
         }
 
+        /// <summary>
+        /// Release the charge, instanciate the cannonball and any FX.
+        /// </summary>
         public override void StopUse()
         {
             CannonballController newCannonball = LazyPoolerUtility.GetSimplePooledObject<CannonballController>(cannonballPrefab.gameObject);
@@ -80,6 +95,11 @@ namespace IWantToWorkAtComplexGames
             impulseSource.GenerateImpulse();
         }
 
+        /// <summary>
+        /// Handle decrimenting the cannonball "health" per collision. If it runs out of collisions, release it back into the pool
+        /// </summary>
+        /// <param name="cannonball"></param>
+        /// <param name="collision"></param>
         private void NewCannonball_OnCollision(CannonballController cannonball, Collision collision)
         {
 
@@ -96,7 +116,9 @@ namespace IWantToWorkAtComplexGames
         }
 
 
-
+        /// <summary>
+        /// Custom data for the rail cannonball
+        /// </summary>
         private class RailCannonballCustomData
         {
             public int CollisionsBeforeDestroy;

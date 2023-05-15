@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -39,7 +37,9 @@ namespace IWantToWorkAtComplexGames
             AimCannon();
         }
 
-        //Handles rotating the body of the cannon
+        /// <summary>
+        /// Handles rotating the body of the cannon
+        /// </summary>
         private void AimCannon()
         {
             yRotation = rotationalBody.eulerAngles.y;
@@ -53,7 +53,10 @@ namespace IWantToWorkAtComplexGames
             rotationalBody.rotation = Quaternion.Euler(0, yRotation, zRotation);
         }
 
-        //Gets invoked by Player Input Component via messaging to pass in new input
+        /// <summary>
+        /// Handles setting and updating the Look values from input
+        /// </summary>
+        /// <param name="context"></param>
         private void OnLook(InputAction.CallbackContext context)
         {
             lookVal = context.ReadValue<Vector2>();
@@ -68,12 +71,19 @@ namespace IWantToWorkAtComplexGames
                 verticalAimAudioSource.Stop();
         }
 
-        //Gets invoked by Player Input Component via messaging to pass in new input
+        /// <summary>
+        /// Uses the weapon it is currently holding
+        /// </summary>
+        /// <param name="context"></param>
         private void OnAttack(InputAction.CallbackContext context)
         {
             currentWeapon.Use();
         }
 
+        /// <summary>
+        /// Stops using the weapon it is currently holding
+        /// </summary>
+        /// <param name="context"></param>
         private void OnAttackCanceled(InputAction.CallbackContext context)
         {
             currentWeapon.StopUse();
@@ -96,7 +106,6 @@ namespace IWantToWorkAtComplexGames
             playerInput.actions["Look"].canceled -= OnLook;
             playerInput.actions["Attack"].started -= OnAttack;
             playerInput.actions["Attack"].canceled -= OnAttackCanceled;
-
         }
 
 

@@ -1,33 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveToDontDestroyOnLoad : MonoBehaviour
+namespace IWantToWorkAtComplexGames
 {
-    [Tooltip("If this scene is reloaded, then another copy will be added to DontDestroyOnLoad. This option prevents that from happening")]
-    [SerializeField] private bool destroyIfDuplicated;
-    [Tooltip("The ID is used to identify objects which should only exist once.")] //While I could use a singleton pattern, I don't want to extend the EventSystem to destroy itself for this project.
-    [SerializeField] private int id;
-    // Start is called before the first frame update
-    void Start()
+    /// <summary>
+    /// This class moves an object to the DontDestroyOnLoad scene, and destroys this object if another one already exists (in the case of a scene being reloaded)
+    /// </summary>
+    public class MoveToDontDestroyOnLoad : MonoBehaviour
     {
-        if(destroyIfDuplicated)
+        [Tooltip("If this scene is reloaded, then another copy will be added to DontDestroyOnLoad. This option prevents that from happening")]
+        [SerializeField] private bool destroyIfDuplicated;
+        [Tooltip("The ID is used to identify objects which should only exist once.")] 
+        [SerializeField] private int id;
+        //While I could use a singleton pattern, I don't want to extend the EventSystem Component to destroy itself for this project.
+
+        // Start is called before the first frame update
+        void Start()
         {
-            foreach (var obj in FindObjectsByType<MoveToDontDestroyOnLoad>(FindObjectsSortMode.InstanceID))
+            if (destroyIfDuplicated)
             {
-                if (obj.gameObject == gameObject)
-                    continue;
-
-                if(obj.id == id)
+                foreach (var obj in FindObjectsByType<MoveToDontDestroyOnLoad>(FindObjectsSortMode.InstanceID))
                 {
-                    Destroy(gameObject);
-                    return;
+                    if (obj.gameObject == gameObject)
+                        continue;
+
+                    if (obj.id == id)
+                    {
+                        Destroy(gameObject);
+                        return;
+                    }
+
                 }
-
             }
+
+
+            DontDestroyOnLoad(gameObject);
         }
-
-
-        DontDestroyOnLoad(gameObject);
     }
 }

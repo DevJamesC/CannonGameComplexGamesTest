@@ -1,30 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Text.RegularExpressions;
 using TMPro;
 
-public class DisplayLevelSelectMenu : MonoBehaviour
+namespace IWantToWorkAtComplexGames
 {
-    [SerializeField] private Button buttonPrefab;
-    [SerializeField] private Transform buttonParent;
-
-    private void Start()
+    /// <summary>
+    /// This component procedurally generates level select buttons for a level select menu
+    /// </summary>
+    public class DisplayLevelSelectMenu : MonoBehaviour
     {
-        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+        [SerializeField] private Button buttonPrefab;
+        [SerializeField] private Transform buttonParent;
+
+        private void Start()
         {
-            string sceneName = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(i));
-            if (Regex.IsMatch(sceneName, "Level*"))
+            for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
             {
-                Button newButton = Instantiate(buttonPrefab, buttonParent);
-                newButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"Level {Regex.Match(sceneName, @"\d+").Value}";
-                newButton.onClick.AddListener(() => UIButtonMethods.LoadSceneStatic(sceneName));
+                string sceneName = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(i));
+                if (Regex.IsMatch(sceneName, "Level*"))
+                {
+                    Button newButton = Instantiate(buttonPrefab, buttonParent);
+                    newButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"Level {Regex.Match(sceneName, @"\d+").Value}";
+                    newButton.onClick.AddListener(() => UIButtonMethods.LoadSceneStatic(sceneName));
+                }
             }
+
         }
 
     }
-
-
 }

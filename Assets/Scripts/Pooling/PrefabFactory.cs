@@ -2,6 +2,10 @@
 
 namespace IWantToWorkAtComplexGames
 {
+    /// <summary>
+    /// Factory to instanciate objects from a prefab reference
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PrefabFactory<T> : IFactory<T> where T : MonoBehaviour
     {
 
@@ -17,6 +21,10 @@ namespace IWantToWorkAtComplexGames
             this.name = name;
         }
 
+        /// <summary>
+        /// Create the object and return the type T component from the prefab
+        /// </summary>
+        /// <returns></returns>
         public T Create()
         {
             GameObject tempGameObject = GameObject.Instantiate(prefab) as GameObject;

@@ -1,13 +1,13 @@
-using IWantToWorkAtComplexGames;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace IWantToWorkAtComplexGames
 {
+    /// <summary>
+    /// Factory to instanciate objects from a monobehavior reference
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MonoBehaviourFactory<T> : IFactory<T> where T : MonoBehaviour
     {
-        GameObject prefab;
         string name;
         int index = 0;
 
@@ -18,6 +18,10 @@ namespace IWantToWorkAtComplexGames
             this.name = name;
         }
 
+        /// <summary>
+        /// Create the object and return the type T component
+        /// </summary>
+        /// <returns></returns>
         public T Create()
         {
             GameObject tempGameObject = GameObject.Instantiate(new GameObject()) as GameObject;

@@ -1,7 +1,5 @@
 using Cinemachine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace IWantToWorkAtComplexGames
@@ -20,14 +18,22 @@ namespace IWantToWorkAtComplexGames
         public event Action<CannonballController, Collision> OnCollision = delegate { };
 
         private new Rigidbody rigidbody;
-        private float currentLifetime;
+        private float lifetimeRemaining;
         private CinemachineImpulseSource impulseSource;
         private TrailRenderer trailRenderer;
 
         private object customData;
 
+        /// <summary>
+        /// Returns custom data, if custom data has been set
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public T GetCustomData<T>() where T : class
         {
+            if (customData == null)
+                return null;
+
             return customData as T;
         }
 
@@ -40,19 +46,24 @@ namespace IWantToWorkAtComplexGames
 
         private void Start()
         {
-            currentLifetime = lifetime;
+            lifetimeRemaining = lifetime;
             trailRenderer.Clear();
         }
 
+        /// <summary>
+        /// Adds force to the cannonball
+        /// </summary>
+        /// <param name="velocity"></param>
         public void Launch(Vector3 velocity)
         {
             rigidbody.AddForce(velocity, ForceMode.Impulse);
         }
 
+        //Handles decrimenting the lifetimeRemaining counter, and releasing the object back into the pool if it travels without a collision for too long
         private void Update()
         {
-            if (currentLifetime > 0)
-                currentLifetime -= Time.deltaTime;
+            if (lifetimeRemaining > 0)
+                lifetimeRemaining -= Time.deltaTime;
             else
                 Reset();
         }
@@ -62,9 +73,13 @@ namespace IWantToWorkAtComplexGames
             base.Reset();
             OnCollision = delegate { };
             rigidbody.velocity = Vector3.zero;
-            currentLifetime = lifetime;
+            lifetimeRemaining = lifetime;
         }
 
+        /// <summary>
+        /// Handles instanciating VFX and SFX, generating camera shake impulse, and invoking the OnCollisionEvent
+        /// </summary>
+        /// <param name="collision"></param>
         private void OnCollisionEnter(Collision collision)
         {
             IDamageable target = collision.collider.gameObject.GetComponentInParent<IDamageable>();
@@ -77,12 +92,17 @@ namespace IWantToWorkAtComplexGames
             impulseSource.GenerateImpulse(new Vector3(UnityEngine.Random.Range(-.5f, .5f), UnityEngine.Random.Range(-.5f, .5f), 0f));
 
         }
-
+        
+        //Clears the trailRenderer when enabled, so we don't get huge lines from the cannonball's last position
         private void OnEnable()
         {
             trailRenderer.Clear();
         }
 
+        /// <summary>
+        /// Deal 1 damage to a target
+        /// </summary>
+        /// <param name="target"></param>
         public void DealDamage(IDamageable target)
         {
             target.TakeDamage(1);

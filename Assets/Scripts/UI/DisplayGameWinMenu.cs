@@ -1,20 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class DisplayGameWinMenu : MonoBehaviour
+namespace IWantToWorkAtComplexGames
 {
-    [SerializeField] private GameObject gameWinMenu;
-    private LevelWinManager levelWinManager;
-    // Start is called before the first frame update
-    void Start()
+    /// <summary>
+    /// This enables a "You Win" menu when the GameWin manager invokes the game win event
+    /// </summary>
+    public class DisplayGameWinMenu : MonoBehaviour
     {
-        levelWinManager = FindFirstObjectByType<LevelWinManager>();
-        levelWinManager.OnWin += LevelWinManager_OnWin;
-    }
+        [SerializeField] private GameObject gameWinMenu;
+        private LevelWinManager levelWinManager;
+        // Start is called before the first frame update
+        void Start()
+        {
+            levelWinManager = FindFirstObjectByType<LevelWinManager>();
+            levelWinManager.OnWin += LevelWinManager_OnWin;
+        }
 
-    private void LevelWinManager_OnWin()
-    {
-        gameWinMenu.SetActive(true);
+        /// <summary>
+        /// Set the game win menu active
+        /// </summary>
+        private void LevelWinManager_OnWin()
+        {
+            gameWinMenu.SetActive(true);
+        }
     }
 }

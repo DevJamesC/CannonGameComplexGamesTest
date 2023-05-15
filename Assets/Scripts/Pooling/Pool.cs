@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace IWantToWorkAtComplexGames
 {
+    /// <summary>
+    /// Provides pooling for members, including creating and allocating out members to other logic
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Pool<T> : IEnumerable where T : IResettable
     {
 
@@ -52,6 +55,10 @@ namespace IWantToWorkAtComplexGames
             unavailable.Remove(member);
         }
 
+        /// <summary>
+        /// Remove the object from the pool completely
+        /// </summary>
+        /// <param name="member"></param>
         public void RemoveFromPool(T member)
         {
             unavailable.Remove(member);
@@ -74,6 +81,10 @@ namespace IWantToWorkAtComplexGames
 
         }
 
+        /// <summary>
+        /// Create a new member using a factory
+        /// </summary>
+        /// <returns></returns>
         T Create()
         {
             T member = factory.Create();
@@ -81,8 +92,10 @@ namespace IWantToWorkAtComplexGames
             return member;
         }
 
-
-
+        /// <summary>
+        /// Required method to allow for enumeration in loops
+        /// </summary>
+        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return (IEnumerator<T>)members.GetEnumerator();

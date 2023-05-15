@@ -173,7 +173,7 @@
             "id": "f67f7995-e49f-41ac-9a0a-3ef55d274027",
             "actions": [
                 {
-                    "name": "New action",
+                    "name": "Continue",
                     "type": "Button",
                     "id": "048d5896-c366-42ca-9902-e1b72a40594d",
                     "expectedControlType": "Button",
@@ -186,11 +186,22 @@
                 {
                     "name": "",
                     "id": "3f2ec289-0c15-4bbc-ac4a-7cae311b8088",
-                    "path": "",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "New action",
+                    "action": "Continue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b44b204e-ff2a-4795-b3f2-55896f5abff7",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Continue",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

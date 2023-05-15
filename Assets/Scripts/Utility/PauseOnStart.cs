@@ -1,13 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PauseOnStart : MonoBehaviour
+namespace IWantToWorkAtComplexGames
 {
-
-    [SerializeField] private UIButtonMethods uiButtonMethods;
-    private void Start()
+    /// <summary>
+    /// Pauses the game on Start. Used by the Settings menu to pause the game when it is loaded.
+    /// </summary>
+    public class PauseOnStart : MonoBehaviour
     {
-        uiButtonMethods.SetPauseTimescale();
+
+        [SerializeField] private UIButtonMethods uiButtonMethods;
+        private void Start()
+        {
+            uiButtonMethods.SetPauseTimescale();
+        }
     }
 }

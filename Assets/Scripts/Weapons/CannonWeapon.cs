@@ -1,10 +1,11 @@
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace IWantToWorkAtComplexGames
 {
+    /// <summary>
+    /// Cannon weapon. Simple fire control as fast as keys can be pressed
+    /// </summary>
     public class CannonWeapon : Weapon
     {
         [SerializeField] private float launchForce = 100;
@@ -20,6 +21,9 @@ namespace IWantToWorkAtComplexGames
             impulseSource = GetComponent<CinemachineImpulseSource>();
         }
 
+        /// <summary>
+        /// Instanciates and launches the cannonball
+        /// </summary>
         public override void Use()
         {
             CannonballController newCannonball = LazyPoolerUtility.GetSimplePooledObject<CannonballController>(cannonballPrefab.gameObject);
@@ -34,6 +38,11 @@ namespace IWantToWorkAtComplexGames
             impulseSource.GenerateImpulse();
         }
 
+        /// <summary>
+        /// Releases the cannonball on collision
+        /// </summary>
+        /// <param name="cannonball"></param>
+        /// <param name="collision"></param>
         private void NewCannonball_OnCollision(CannonballController cannonball, Collision collision)
         {
             cannonball.OnCollision -= NewCannonball_OnCollision;
