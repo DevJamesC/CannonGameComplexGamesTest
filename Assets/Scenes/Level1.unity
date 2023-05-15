@@ -219,7 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0505b229affb2a49abce7d7578fcf81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointsToWin: 1
+  pointsToWin: 10
   nextLevelName: Level2
 --- !u!4 &705612662
 Transform:
@@ -287,8 +287,8 @@ MonoBehaviour:
   circleTargetChance: 495
   maxRollNum: 500
   pointsPerTarget: 1
-  pointsPerMovingTarget: 10
-  pointsPerCircleTarget: 30
+  pointsPerMovingTarget: 5
+  pointsPerCircleTarget: 10
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

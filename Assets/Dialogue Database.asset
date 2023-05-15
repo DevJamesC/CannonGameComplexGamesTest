@@ -390,7 +390,7 @@ MonoBehaviour:
         type: 0
         typeString: 
       - title: Dialogue Text
-        value: "Yes Sir! Er, wait, is he the one that turns everyone into Servitors?\r"
+        value: "Yes Sir!  Er, wait, is he the one that turns everyone into servitors?\r"
         type: 0
         typeString: 
       - title: Sequence
