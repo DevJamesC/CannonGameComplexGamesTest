@@ -278,6 +278,9 @@ MonoBehaviour:
   targetPrefab: {fileID: -7335549014462242930, guid: 2f6fe286a5295b149a9133112bc65c22, type: 3}
   minimumSpawnDistance: 10
   maximumSpawnDistance: 40
+  movingTargetChance: 425
+  circleTargetChance: 475
+  maxRollNum: 500
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

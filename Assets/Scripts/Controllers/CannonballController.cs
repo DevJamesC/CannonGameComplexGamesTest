@@ -22,6 +22,7 @@ namespace IWantToWorkAtComplexGames
         private new Rigidbody rigidbody;
         private float currentLifetime;
         private CinemachineImpulseSource impulseSource;
+        private TrailRenderer trailRenderer;
 
         private object customData;
 
@@ -34,11 +35,13 @@ namespace IWantToWorkAtComplexGames
         {
             rigidbody = GetComponent<Rigidbody>();
             impulseSource = GetComponent<CinemachineImpulseSource>();
+            trailRenderer = GetComponent<TrailRenderer>();
         }
 
         private void Start()
         {
             currentLifetime = lifetime;
+            trailRenderer.Clear();
         }
 
         public void Launch(Vector3 velocity)
@@ -73,6 +76,11 @@ namespace IWantToWorkAtComplexGames
             AudioSource.PlayClipAtPoint(collisionAudioClip, collision.GetContact(0).point, 50);
             impulseSource.GenerateImpulse(new Vector3(UnityEngine.Random.Range(-.5f, .5f), UnityEngine.Random.Range(-.5f, .5f), 0f));
 
+        }
+
+        private void OnEnable()
+        {
+            trailRenderer.Clear();
         }
 
         public void DealDamage(IDamageable target)

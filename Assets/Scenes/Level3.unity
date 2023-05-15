@@ -275,9 +275,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e58e51c9fc06f549a788192bc41fdc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPrefab: {fileID: -7335549014462242930, guid: 2f6fe286a5295b149a9133112bc65c22, type: 3}
+  targetPrefab: {fileID: 2291040066818541169, guid: 1da4cf95da0703c4a85c39f20892b099, type: 3}
   minimumSpawnDistance: 10
   maximumSpawnDistance: 40
+  movingTargetChance: 400
+  circleTargetChance: 450
+  maxRollNum: 500
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
