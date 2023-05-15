@@ -29,7 +29,7 @@ namespace IWantToWorkAtComplexGames
         }
         // Start is called before the first frame update
         void Start()
-        {          
+        {
             currentWeapon = Instantiate(weaponPrefab, rotationalBody);
         }
 
@@ -74,12 +74,19 @@ namespace IWantToWorkAtComplexGames
             currentWeapon.Use();
         }
 
+        private void OnAttackCanceled(InputAction.CallbackContext context)
+        {
+            currentWeapon.StopUse();
+        }
+
         private void OnEnable()
         {
             playerInput.actions["Look"].started += OnLook;
             playerInput.actions["Look"].performed += OnLook;
             playerInput.actions["Look"].canceled += OnLook;
             playerInput.actions["Attack"].started += OnAttack;
+            playerInput.actions["Attack"].canceled += OnAttackCanceled;
+
         }
 
         private void OnDisable()
@@ -88,6 +95,8 @@ namespace IWantToWorkAtComplexGames
             playerInput.actions["Look"].performed -= OnLook;
             playerInput.actions["Look"].canceled -= OnLook;
             playerInput.actions["Attack"].started -= OnAttack;
+            playerInput.actions["Attack"].canceled -= OnAttackCanceled;
+
         }
 
 

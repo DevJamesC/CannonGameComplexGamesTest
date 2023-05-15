@@ -11,6 +11,8 @@ namespace IWantToWorkAtComplexGames
     /// </summary>
     public class CannonballController : ResettableMonoBehaviour, IDamager
     {
+        public object CustomData { set => customData = value; }
+
         [SerializeField] private float lifetime;
         [SerializeField] private GameObject onCollisionParticleSystem;
         [SerializeField] private AudioClip collisionAudioClip;
@@ -20,6 +22,13 @@ namespace IWantToWorkAtComplexGames
         private new Rigidbody rigidbody;
         private float currentLifetime;
         private CinemachineImpulseSource impulseSource;
+
+        private object customData;
+
+        public T GetCustomData<T>() where T : class
+        {
+            return customData as T;
+        }
 
         private void Awake()
         {
